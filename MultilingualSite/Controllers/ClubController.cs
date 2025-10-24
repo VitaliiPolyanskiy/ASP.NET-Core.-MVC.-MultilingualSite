@@ -19,7 +19,6 @@ namespace MultilingualSite.Controllers
 
         public ActionResult Index()
         {
-           // string str = Resources.Resource.IndexHeader;
             HttpContext.Session.SetString("path", Request.Path);
             return View(cc.Clubs);
         }

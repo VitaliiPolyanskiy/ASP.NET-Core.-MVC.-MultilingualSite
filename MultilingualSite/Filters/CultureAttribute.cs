@@ -29,15 +29,6 @@ namespace MultilingualSite.Filters
             else
             {
                 cultureName = "uk";// Получаем объект запроса
-                var httpRequest = filterContext.HttpContext.Request;
-
-                // Получаем значение заголовка Accept-Language
-                string acceptLanguage = httpRequest.Headers["Accept-Language"]!;
-
-                // В заголовке Accept-Language может быть перечислено несколько языков, разделенных запятыми,
-                // обычно в формате, подобном "en-US,ru-RU;q=0.9,fr;q=0.8". 
-                string[] languages = acceptLanguage.Split(',');
-                cultureName = languages[0].Trim();
             }
 
             // Список культур
