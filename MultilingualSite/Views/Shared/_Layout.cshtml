@@ -1,7 +1,7 @@
 ﻿@inject MultilingualSite.Services.ILangRead MyLangRead
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,36 +10,57 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MultilingualSite.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Club" asp-action="Index">@Resources.Resource.Back</a>
-                <a class="navbar-brand" asp-controller="Club" asp-action="CreateClub">@Resources.Resource.CreateLink</a>
-                <form asp-action="ChangeCulture" asp-controller="Club">
-                    <select name="lang">
-                        <option disabled selected>@Resources.Resource.ChooseLang</option>
-                        @foreach (Language it in MyLangRead.languageList())
-                        {
-                            <option value=@it.ShortName>@it.Name</option>
-                        }
-                    </select>
-                    <input type="submit" name="submit" value="@Resources.Resource.ChooseLang">
-                </form>              
+                <!-- Кнопка-бургер для мобільної версії -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Club" asp-action="Index">@Resources.Resource.Back</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Club" asp-action="CreateClub">@Resources.Resource.CreateLink</a>
+                        </li>
+                    </ul>
+
+                    <!-- Сучасна форма вибору мови з використанням Flex-вирівнювання -->
+                    <form asp-action="ChangeCulture" asp-controller="Club" class="d-flex align-items-center">
+                        <select name="lang" class="form-select form-select-sm me-2" style="width: auto;">
+                            <option disabled selected>@Resources.Resource.ChooseLang</option>
+                            @foreach (Language it in MyLangRead.GetLanguageList())
+                            {
+                                <option value="@it.ShortName">@it.Name</option>
+                            }
+                        </select>
+                        <button type="submit" name="submit" class="btn btn-sm btn-outline-primary">
+                            @Resources.Resource.ChooseLang
+                        </button>
+                    </form>
+                </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <!-- flex-grow-1 змушує цей блок займати весь вільний простір, відштовхуючи футер вниз -->
+    <div class="container flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; MultilingualSite -  @DateTime.Now - ASP.NET Core MVC Application
+    <!-- Клас mt-auto гарантує, що футер буде притиснутий донизу -->
+    <footer class="border-top footer text-muted mt-auto py-3">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - MultilingualSite - ASP.NET Core MVC Application
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

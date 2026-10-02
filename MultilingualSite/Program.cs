@@ -4,28 +4,30 @@ using MultilingualSite.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Получаем строку подключения из файла конфигурации
+// Отримуємо рядок підключення з файлу конфігурації
 string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// добавляем контекст ApplicationContext в качестве сервиса в приложение
+// Додаємо контекст ApplicationContext як сервіс у додаток
 builder.Services.AddDbContext<ClubContext>(options => options.UseSqlServer(connection));
 
-// Все сессии работают поверх объекта IDistributedCache, и ASP.NET Core 
-// предоставляет встроенную реализацию IDistributedCache
+// Усі сесії працюють поверх об'єкта IDistributedCache, і ASP.NET Core 
+// надає вбудовану реалізацію IDistributedCache
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10); // Длительность сеанса (тайм-аут завершения сеанса)
-    options.Cookie.Name = "Session"; // Каждая сессия имеет свой идентификатор, который сохраняется в куках.
-
+    options.IdleTimeout = TimeSpan.FromMinutes(10); // Тривалість сеансу (тайм-аут завершення сеансу)
+    options.Cookie.Name = "Session"; // Кожна сесія має свій ідентифікатор, який зберігається в куках
 });
+
 builder.Services.AddScoped<ILangRead, ReadLangServices>();
-// Добавляем сервисы MVC
+
+// Додаємо сервіси MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-app.UseStaticFiles(); // обрабатывает запросы к файлам в папке wwwroot
-app.UseSession();   // Добавляем middleware-компонент для работы с сессиями
+
+app.UseStaticFiles(); // Обробляє запити до файлів у папці wwwroot
+app.UseSession();     // Додаємо middleware-компонент для роботи з сесіями
 
 app.MapControllerRoute(
     name: "default",

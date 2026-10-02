@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MultilingualSite.Filters;
 using MultilingualSite.Models;
 using MultilingualSite.Services;
@@ -8,56 +9,62 @@ namespace MultilingualSite.Controllers
     [Culture]
     public class ClubController : Controller
     {
-        readonly ClubContext cc;
-        readonly ILangRead _langRead;
+        private readonly ClubContext _context;
+        private readonly ILangRead _langRead;
 
         public ClubController(ClubContext context, ILangRead langRead)
         {
-            cc = context;
+            _context = context;
             _langRead = langRead;
         }
 
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
             HttpContext.Session.SetString("path", Request.Path);
-            return View(cc.Clubs);
+            return View(await _context.Clubs.ToListAsync());
         }
 
         [HttpGet]
-        public ActionResult CreateClub()
+        public IActionResult CreateClub()
         {
             HttpContext.Session.SetString("path", Request.Path);
             return View();
         }
 
         [HttpPost]
-        public ActionResult CreateClub(Club club)
+        [ValidateAntiForgeryToken] // Захист від підробки міжсайтових запитів (CSRF)
+        public async Task<IActionResult> CreateClub(Club club)
         {
             if (ModelState.IsValid)
             {
-                cc.Clubs.Add(club);
-                cc.SaveChanges();
-                return RedirectToAction("Index");
+                _context.Clubs.Add(club);
+                await _context.SaveChangesAsync();
+
+                // Використання nameof() замість жорстко закодованих рядків
+                return RedirectToAction(nameof(Index));
             }
             return View(club);
         }
 
-        public ActionResult ChangeCulture(string lang)
+        public IActionResult ChangeCulture(string lang)
         {
-            string? returnUrl = HttpContext.Session.GetString("path") ?? "/Club/Index";
+            string returnUrl = HttpContext.Session.GetString("path") ?? "/Club/Index";
 
-            // Список культур
-            List<string> cultures = _langRead.languageList().Select(t => t.ShortName).ToList()!;
+            List<string> cultures = _langRead.GetLanguageList().Select(t => t.ShortName).ToList()!;
+
             if (!cultures.Contains(lang))
             {
                 lang = "uk";
             }
 
-            CookieOptions option = new CookieOptions();
-            option.Expires = DateTime.Now.AddDays(10); // срок хранения куки - 10 дней
-            Response.Cookies.Append("lang", lang, option); // создание куки
+            var options = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(10) // термін зберігання cookie - 10 днів
+            };
+
+            Response.Cookies.Append("lang", lang, options); // створення cookie
+
             return Redirect(returnUrl);
         }
-
     }
 }
